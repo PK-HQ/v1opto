@@ -1,6 +1,5 @@
 import numpy as np
-from scipy.io import loadmat  # Import loadmat to read .mat files
-
+from scipy.io import loadmat
 
 class OrientationMap:
     def __init__(self, filepath=None, size=(512, 512)):
@@ -12,6 +11,7 @@ class OrientationMap:
         - size: tuple, default (512, 512). Expected size of the orientation map.
         """
         self.size = size
+        print(f"Initializing OrientationMap with filepath: {filepath}")  # Debug print
         self.map = self.load_orientation_map(filepath)
 
     def load_orientation_map(self, filepath):
@@ -26,6 +26,7 @@ class OrientationMap:
         """
         if filepath:
             # Load the .mat file
+            print(f"Loading .mat file from: {filepath}")  # Debug print
             mat_data = loadmat(filepath)
 
             # Check that both 'MapOrt' and 'Mask' are present
@@ -53,8 +54,3 @@ class OrientationMap:
         # Generate a random placeholder if no filepath is provided
         print("Warning: No filepath provided. Using random orientation map as a placeholder.")
         return np.random.uniform(0, 180, self.size)  # Random values between 0 and 180 degrees
-
-    def connectivity_matrix(self, decay_type="Gaussian", std_dev=1.0):
-        """Generate connectivity matrix based on distance and orientation preferences."""
-        # Placeholder for actual connectivity implementation
-        pass

@@ -7,10 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ### SIMULATION OF V1 VISUAL + OPTO
-# Load orientation map
+## Load orientation map
+# Define the path to your .mat file
 filepath = 'Y:/Chip/Chip20240118/run0/M28D20240118R0OrientationP2.mat'
+# Create an OrientationMap instance with the specified file path
 orientation_map_instance = OrientationMap(filepath=filepath)
-orientation_map = orientation_map_instance.map  # Access the loaded orientation map
+orientation_map = orientation_map_instance.map  # Access the loaded and masked orientation map
+print("Orientation map (after loading from .mat):", orientation_map)
+print("Orientation map contains NaNs:", np.isnan(orientation_map).any())
 
 neuron_layer = LIFNeuronLayer(size=(512, 512), neuron_model="LIF")
 v1_simulation = V1ModelSimulation(neuron_layer=neuron_layer, orientation_map=orientation_map)
@@ -42,6 +46,8 @@ for contrast in contrasts:
             trial_data.append(trial_result)
             metadata.append({"contrast": contrast, "orientation": orientation, "tuning": tuning})
 
+print("Trial data range:", np.min(trial_data), "to", np.max(trial_data)) #test
+
 # Convert trial_data to a 4D numpy array and metadata to a structured array
 trial_data = np.stack(trial_data, axis=-1)  # Shape: 512 x 512 x time_bins x num_trials
 metadata = np.array(metadata)  # Array of dictionaries holding each trial’s parameters
@@ -50,10 +56,6 @@ metadata = np.array(metadata)  # Array of dictionaries holding each trial’s pa
 # Assuming `orientation_map` is a 512x512 array where each value represents the orientation tuning in degrees (0 to 165)
 # Example: Load or simulate a placeholder orientation map if not already defined
 # orientation_map = np.random.uniform(0, 165, (512, 512))  # Replace this with actual orientation data if available
-# Plot the orientation map
-orientation_map_instance = OrientationMap(size=(512, 512))
-orientation_map = np.array(orientation_map_instance.map, dtype=float)  # Access the .map attribute
-
 orientation_map = np.array(orientation_map, dtype=float)  # Convert to float if it's not already
 plt.figure(figsize=(8, 8))
 plt.imshow(orientation_map, cmap='hsv', vmin=0, vmax=180)  # 'hsv' colormap for orientation
@@ -100,4 +102,11 @@ for i, contrast in enumerate(contrasts):
 # Adjust layout and colorbar
 fig.colorbar(im, ax=axs, orientation='horizontal', fraction=0.05, pad=0.05)
 plt.tight_layout()
+plt.show()
+
+# Plot a single trial without averaging
+plt.figure(figsize=(8, 8))
+plt.imshow(trial_data[:, :, 0, 0], cmap='hot')  # First time bin, first trial
+plt.colorbar(label="Neural Activity")
+plt.title("Single Trial, Single Time Bin of Neural Activity")
 plt.show()
